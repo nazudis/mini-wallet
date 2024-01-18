@@ -19,3 +19,7 @@ func RandString(length ...int) string {
 
 	return string(randomString)
 }
+
+func VarToPointer[T any](p T) *T {
+	return &p
+}

@@ -16,6 +16,7 @@ type StdResponse interface {
 	ReplySuccess(data any)
 	ReplyFail(data any)
 	ReplyError(message string)
+	SetHttpStatusCode(code int) StdResponse
 }
 
 type StdResp struct {

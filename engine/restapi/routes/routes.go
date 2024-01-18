@@ -12,6 +12,7 @@ func AppRoutes(r chi.Router) {
 	// Base endpoint
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		res := helper.PlugResponse(w)
-		res.ReplySuccess(map[string]any{"name": "mini-wallet", "service": "ok"})
+		data := helper.MapJSON{"name": "mini-wallet", "service": "ok"}
+		res.ReplySuccess(data)
 	})
 }

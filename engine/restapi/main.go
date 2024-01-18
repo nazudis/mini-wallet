@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "github.com/nazudis/mini-wallet/src/migration" // Need to import first, so the Sqlite will migrate table
+
 	"fmt"
 	"net/http"
 

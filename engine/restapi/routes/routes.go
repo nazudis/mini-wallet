@@ -18,6 +18,7 @@ func walletRoutes(r chi.Router) {
 
 		walletR.Get("/", walletCtrl.GetWallet)
 		walletR.Post("/", walletCtrl.EnableWalletAccount)
+		walletR.Patch("/", walletCtrl.DisableWalletAccount)
 	})
 }
 

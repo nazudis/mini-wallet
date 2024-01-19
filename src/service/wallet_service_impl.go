@@ -73,6 +73,44 @@ func (s WalletServiceImpl) EnableWalletAccount(customerXid string) (*entity.Wall
 	return wallet, nil
 }
 
+// DisableWalletAccount implements WalletService.
+func (s WalletServiceImpl) DisableWalletAccount(customerXid string, isDisabled bool) (*entity.Wallet, error) {
+	_, err := uuid.Parse(customerXid)
+	if err != nil {
+		return nil, err
+	}
+
+	account, err := s.AccountRepository.FirstByCustID(customerXid)
+	if err != nil {
+		return nil, err
+	}
+
+	if account == nil {
+		return nil, fmt.Errorf("account not found")
+	}
+
+	wallet, err := s.WalletRepository.FirstByCustID(customerXid)
+	if err != nil {
+		return nil, err
+	}
+	if wallet == nil {
+		return nil, fmt.Errorf("wallet not found")
+	}
+
+	if isDisabled {
+		if wallet.Status == entity.WalletStatusDisabled {
+			return nil, fmt.Errorf("already disabled")
+		}
+
+		err = s.WalletRepository.DisabledWallet(wallet)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return wallet, nil
+}
+
 // GetEnabledWallet implements WalletService.
 func (s WalletServiceImpl) GetEnabledWallet(customerXid string) (*entity.Wallet, error) {
 	_, err := uuid.Parse(customerXid)

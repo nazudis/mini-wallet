@@ -52,6 +52,24 @@ func (c WalletControllerImpl) EnableWalletAccount(w http.ResponseWriter, r *http
 	res.ReplySuccess(data)
 }
 
+// DisableWalletAccount implements WalletController.
+func (c WalletControllerImpl) DisableWalletAccount(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+	isDisabled := r.FormValue("is_disabled")
+
+	wallet, err := c.Service.DisableWalletAccount(customerXid, isDisabled == "true")
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseWallet(wallet)
+	res.ReplySuccess(data)
+}
+
 // GetWallet implements WalletController.
 func (c WalletControllerImpl) GetWallet(w http.ResponseWriter, r *http.Request) {
 	res := helper.PlugResponse(w)

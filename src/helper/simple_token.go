@@ -8,7 +8,7 @@ func GenToken(s string) string {
 	return hex.EncodeToString([]byte(s))
 }
 
-func DecodeToken(s string) string {
-	ds, _ := hex.DecodeString(s)
-	return string(ds)
+func DecodeToken(s string) (string, error) {
+	ds, err := hex.DecodeString(s)
+	return string(ds), err
 }

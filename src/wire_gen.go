@@ -18,7 +18,8 @@ import (
 func InitializeWalletController() (controller.WalletController, error) {
 	db := database.GetDB()
 	accountRepository := repository.NewAccountRepository(db)
-	walletService := service.NewWalletService(accountRepository)
+	walletRepository := repository.NewWalletRepository(db)
+	walletService := service.NewWalletService(accountRepository, walletRepository)
 	walletController := controller.NewWalletController(walletService)
 	return walletController, nil
 }

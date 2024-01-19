@@ -16,6 +16,7 @@ func InitializeWalletController() (controller.WalletController, error) {
 		controller.NewWalletController,
 		service.NewWalletService,
 		repository.NewAccountRepository,
+		repository.NewWalletRepository,
 		database.GetDB,
 	)
 

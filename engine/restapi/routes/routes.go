@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/nazudis/mini-wallet/src"
 	"github.com/nazudis/mini-wallet/src/helper"
+	"github.com/nazudis/mini-wallet/src/middleware"
 )
 
 func walletRoutes(r chi.Router) {
@@ -13,7 +14,10 @@ func walletRoutes(r chi.Router) {
 
 	r.Post("/init", walletCtrl.InitAccount)
 	r.Route("/wallet", func(walletR chi.Router) {
-		// walletR.Use()
+		walletR.Use(middleware.AuthMiddleware)
+
+		walletR.Get("/", walletCtrl.GetWallet)
+		walletR.Post("/", walletCtrl.EnableWalletAccount)
 	})
 }
 

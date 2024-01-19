@@ -3,7 +3,9 @@ package controller
 import (
 	"net/http"
 
+	"github.com/nazudis/mini-wallet/engine/restapi/transformer"
 	"github.com/nazudis/mini-wallet/src/helper"
+	"github.com/nazudis/mini-wallet/src/middleware"
 	"github.com/nazudis/mini-wallet/src/service"
 )
 
@@ -30,6 +32,40 @@ func (c WalletControllerImpl) InitAccount(w http.ResponseWriter, r *http.Request
 	}
 
 	data := helper.MapJSON{"token": helper.MutatedValue(token)}
+	res.ReplySuccess(data)
+}
+
+// EnableWalletAccount implements WalletController.
+func (c WalletControllerImpl) EnableWalletAccount(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+
+	wallet, err := c.Service.EnableWalletAccount(customerXid)
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseWallet(wallet)
+	res.ReplySuccess(data)
+}
+
+// GetWallet implements WalletController.
+func (c WalletControllerImpl) GetWallet(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+
+	wallet, err := c.Service.GetEnabledWallet(customerXid)
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseWallet(wallet)
 	res.ReplySuccess(data)
 }
 

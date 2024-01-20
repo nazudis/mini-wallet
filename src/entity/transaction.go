@@ -9,6 +9,7 @@ import (
 
 const (
 	TrxStatusSuccess = "success"
+	TrxStatusProcess = "process"
 	TrxStatusFailed  = "failed"
 
 	TrxDeposit    = "deposit"

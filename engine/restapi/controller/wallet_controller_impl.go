@@ -7,6 +7,7 @@ import (
 	"github.com/nazudis/mini-wallet/src/helper"
 	"github.com/nazudis/mini-wallet/src/middleware"
 	"github.com/nazudis/mini-wallet/src/service"
+	"github.com/shopspring/decimal"
 )
 
 type WalletControllerImpl struct {
@@ -84,6 +85,95 @@ func (c WalletControllerImpl) GetWallet(w http.ResponseWriter, r *http.Request) 
 	}
 
 	data := transformer.TransformResponseWallet(wallet)
+	res.ReplySuccess(data)
+}
+
+// Deposit implements WalletController.
+func (c WalletControllerImpl) Deposit(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+
+	amountString := r.FormValue("amount")
+	amount, err := decimal.NewFromString(amountString)
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	referenceId := r.FormValue("reference_id")
+	if referenceId == "" {
+		data := helper.MapJSON{"error": "reference_id is required"}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	trx, err := c.Service.Deposit(service.TransactionParams{
+		CustomerXid: customerXid,
+		Amount:      amount,
+		ReferenceId: referenceId,
+	})
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseTransaction(trx)
+	res.ReplySuccess(data)
+}
+
+// Withdraw implements WalletController.
+func (c WalletControllerImpl) Withdraw(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+
+	amountString := r.FormValue("amount")
+	amount, err := decimal.NewFromString(amountString)
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	referenceId := r.FormValue("reference_id")
+	if referenceId == "" {
+		data := helper.MapJSON{"error": "reference_id is required"}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	trx, err := c.Service.Withdraw(service.TransactionParams{
+		CustomerXid: customerXid,
+		Amount:      amount,
+		ReferenceId: referenceId,
+	})
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseTransaction(trx)
+	res.ReplySuccess(data)
+}
+
+// GetWalletTransactions implements WalletController.
+func (c WalletControllerImpl) GetWalletTransactions(w http.ResponseWriter, r *http.Request) {
+	res := helper.PlugResponse(w)
+
+	customerXid := r.Context().Value(middleware.CustomerXidCtxKey).(string)
+
+	trxs, err := c.Service.GetTransactions(customerXid)
+	if err != nil {
+		data := helper.MapJSON{"error": helper.MutatedValue(err.Error())}
+		res.SetHttpStatusCode(http.StatusBadRequest).ReplyFail(data)
+		return
+	}
+
+	data := transformer.TransformResponseTransactionList(trxs)
 	res.ReplySuccess(data)
 }
 

@@ -44,6 +44,58 @@ func (r WalletRepositoryImpl) EnabledWallet(data *entity.Wallet) error {
 	return r.db.Save(&data).Error
 }
 
+// Deposit implements WalletRepository.
+func (r WalletRepositoryImpl) Deposit(wallet *entity.Wallet, trx *entity.Transaction) error {
+	trx.Status = entity.TrxStatusProcess
+	err := r.db.Save(&trx).Error
+	if err != nil {
+		return err
+	}
+
+	wallet.Balance = wallet.Balance.Add(trx.Amount.Abs())
+	err = r.db.Save(&wallet).Error
+	if err != nil {
+		return err
+	}
+
+	trx.Status = entity.TrxStatusSuccess
+	err = r.db.Save(&trx).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Withdraw implements WalletRepository.
+func (r WalletRepositoryImpl) Withdraw(wallet *entity.Wallet, trx *entity.Transaction) error {
+	trx.Status = entity.TrxStatusProcess
+	err := r.db.Save(&trx).Error
+	if err != nil {
+		return err
+	}
+
+	wallet.Balance = wallet.Balance.Sub(trx.Amount.Abs())
+	err = r.db.Save(&wallet).Error
+	if err != nil {
+		return err
+	}
+
+	trx.Status = entity.TrxStatusSuccess
+	err = r.db.Save(&trx).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// GetTransactions implements WalletRepository.
+func (r WalletRepositoryImpl) GetTransactions(custId string) (trxs []entity.Transaction) {
+	r.db.Order("transacted_at desc").Find(&trxs, "owned_by = ?", custId)
+	return
+}
+
 func NewWalletRepository(db *gorm.DB) WalletRepository {
 	return WalletRepositoryImpl{
 		db: db,
